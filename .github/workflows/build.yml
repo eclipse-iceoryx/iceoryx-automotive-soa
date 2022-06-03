@@ -1,0 +1,18 @@
+# This workflow builds the repo
+
+name: Build
+
+# Triggers the workflow on push or pull request events but only for the main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main, release* ]
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: cmake -B build && cmake --build build
+
