@@ -1,4 +1,4 @@
-# automotive_soa
+# Using iceoryx for automotive frameworks like AUTOSAR Adaptive ara::com
 
 ## Introduction
 
