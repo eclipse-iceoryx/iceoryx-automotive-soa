@@ -33,7 +33,8 @@ if(NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND)
     FetchContent_Declare(
         iceoryx
         GIT_REPOSITORY https://github.com/eclipse-iceoryx/iceoryx.git
-        GIT_TAG v2.0.2
+        # Recent commit used here to be able to use the CMake macros. Change this to v3.x once released.
+        GIT_TAG 6a11ba3e25adcb2d2feb5482d38e8298198f77e2
     )
     FetchContent_GetProperties(iceoryx)
     if (NOT iceoryx_POPULATED)
@@ -54,10 +55,6 @@ if(ICEORYX_WITH_FETCH_CONTENT)
     find_package(iceoryx_hoofs REQUIRED)
 endif()
 
-include(IceoryxPlatform)
-
-project(iceoryx_project_template)
-
 if(ICEORYX_WITH_FETCH_CONTENT)
 message("
 #############################################################
@@ -67,3 +64,34 @@ If you want to use an existing installation use
 #############################################################
 ")
 endif()
+
+project(example_automotive_soa)
+
+include(GNUInstallDirs)
+include(IceoryxPlatform)
+include(IceoryxPackageHelper)
+
+find_package(iceoryx_posh CONFIG REQUIRED)
+find_package(iceoryx_hoofs CONFIG REQUIRED)
+
+get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+
+iox_add_executable(
+    TARGET              iox-cpp-automotive-skeleton
+    FILES               ./iox_automotive_skeleton.cpp
+                        ./src/minimal_skeleton.cpp
+                        ./src/runtime.cpp
+                        ./src/owl/kom/method_server.cpp
+    LIBS                iceoryx_posh::iceoryx_posh
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+iox_add_executable(
+    TARGET              iox-cpp-automotive-proxy
+    FILES               ./iox_automotive_proxy.cpp
+                        ./src/minimal_proxy.cpp
+                        ./src/runtime.cpp
+                        ./src/owl/kom/method_client.cpp
+    LIBS                iceoryx_posh::iceoryx_posh
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
