@@ -41,21 +41,21 @@ The following sections discuss the different classes in detail:
 
 The skeleton application uses the `MinimalSkeleton`. Consequently, the header is included
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [include skeleton] -->
+<!-- [geoffrey] [iox_automotive_skeleton.cpp] [include skeleton] -->
 ```cpp
 #include "minimal_skeleton.hpp"
 ```
 
 After both `Runtime`
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [create runtime] -->
+<!-- [geoffrey] [iox_automotive_skeleton.cpp] [create runtime] -->
 ```cpp
 Runtime::GetInstance(APP_NAME);
 ```
 
 and `MinimalSkeleton` are created on the stack. The skeleton is offered
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [create skeleton] -->
+<!-- [geoffrey] [iox_automotive_skeleton.cpp] [create skeleton] -->
 ```cpp
 kom::InstanceIdentifier instanceIdentifier{iox::cxx::TruncateToCapacity, "ExampleInstance"};
 MinimalSkeleton skeleton{instanceIdentifier};
@@ -65,7 +65,7 @@ skeleton.Offer();
 
 Every second an event with a counter and timestamp is send to the proxy application
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [send event] -->
+<!-- [geoffrey] [iox_automotive_skeleton.cpp] [send event] -->
 ```cpp
 auto sample = skeleton.m_event.Loan();
 if (!sample)
@@ -82,7 +82,7 @@ If `Loan` fails to acquire new memory, the application is stopped.
 The counter is incremented with every iteration of the loop.
 After 30 iterations the skeleton starts to `Update` the value of the field
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_skeleton.cpp] [send field] -->
+<!-- [geoffrey] [iox_automotive_skeleton.cpp] [send field] -->
 ```cpp
 if (counter > 30)
 {
@@ -103,14 +103,14 @@ The application runs until `Ctrl-C` is pressed.
 
 Similar to the skeleton application, the `MinimalProxy` header is included
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [include proxy] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [include proxy] -->
 ```cpp
 #include "minimal_proxy.hpp"
 ```
 
 and the runtime is created.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [create runtime] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [create runtime] -->
 ```cpp
 Runtime::GetInstance(APP_NAME);
 ```
@@ -119,7 +119,7 @@ Unlike the `MinimalSkeleton` object the `MinimalProxy` one is wrapped in both a 
 a `concurrent::smart_lock` because it is destroyed concurrently when `MinimalSkeleton` becomes
 unavailable.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [wrap proxy] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [wrap proxy] -->
 ```cpp
 iox::concurrent::smart_lock<optional<MinimalProxy>> maybeProxy;
 ```
@@ -127,7 +127,7 @@ iox::concurrent::smart_lock<optional<MinimalProxy>> maybeProxy;
 When starting the proxy application, the discovery phase is happening. Initially, a synchronous `FindService` call is
 performed.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [synchronous discovery] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [synchronous discovery] -->
 ```cpp
 kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "ExampleInstance");
 std::cout << "Searching for instances of '" << MinimalProxy::SERVICE_IDENTIFIER << "' called '"
@@ -137,7 +137,7 @@ auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);
 
 If the skeleton application was already started, the `maybeProxy` is initialized from the search result.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [create proxy] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [create proxy] -->
 ```cpp
 for (auto& handle : handleContainer)
 {
@@ -151,7 +151,7 @@ for (auto& handle : handleContainer)
 If the skeleton application was not started yet and the search result is empty, an asynchronous
 find service call is set up.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [set up asynchronous search] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [set up asynchronous search] -->
 ```cpp
 auto handle = MinimalProxy::EnableFindServiceCallback(callback, exampleInstanceSearchQuery);
 ```
@@ -159,7 +159,7 @@ auto handle = MinimalProxy::EnableFindServiceCallback(callback, exampleInstanceS
 Once the `MinimalSkeleton` instance becomes available, the callback will be executed, which will create the
 `MinimalProxy` object
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [create proxy asynchronously] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [create proxy asynchronously] -->
 ```cpp
 for (auto& proxyHandle : container)
 {
@@ -175,7 +175,7 @@ for (auto& proxyHandle : container)
 
 and respectively destroy the `MinimalProxy` when the once available service becomes unavailable.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [destroy proxy asynchronously] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [destroy proxy asynchronously] -->
 ```cpp
 if (container.empty())
 {
@@ -191,7 +191,7 @@ After the discovery phase, the application continues with the runtime phase rece
 performing remote method calls on the `MinimalSkeleton`. For the `computeSum()` method call two
 integers are created.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Field: create ints for computeSum] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [Field: create ints for computeSum] -->
 ```cpp
 uint64_t addend1{0};
 uint64_t addend2{0};
@@ -199,7 +199,7 @@ uint64_t addend2{0};
 
 As different threads work concurrently on `maybeProxy`, first of all exclusive access is gained.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [gain exclusive access to proxy] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [gain exclusive access to proxy] -->
 ```cpp
 auto proxyGuard = maybeProxy.getScopeGuard();
 if (proxyGuard->has_value())
@@ -209,7 +209,7 @@ if (proxyGuard->has_value())
 
 For the event communication an `onReceive` callback is set up
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Event: set receiveCallback] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [Event: set receiveCallback] -->
 ```cpp
 if (!proxy.m_event.HasReceiveCallback())
 {
@@ -221,7 +221,7 @@ if (!proxy.m_event.HasReceiveCallback())
 which, receives the data and prints out both the `counter` and the latency with which the topic
 was received. The call happens instantly after data was sent on the event by `MinimalSkeleton`.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Event: receiveCallback] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [Event: receiveCallback] -->
 ```cpp
 auto onReceive = [&]() -> void {
     proxy.m_event.TakeNewSamples([](const auto& topic) {
@@ -239,7 +239,7 @@ a `try`-`catch` block is used to handle potential errors. Initially, the value o
 is `4242` and during the first thirty iterations the incremented value is `Set()` from the
 `MinimalProxy` side. Afterwards the value is updated from the `MinimalSkeleton` side.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Field: get and set data] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [Field: get and set data] -->
 ```cpp
 auto fieldFuture = proxy.m_field.Get();
 try
@@ -265,7 +265,7 @@ Calling the method `computeSum()` on the `MinimalProxy` can throw exceptions, to
 a `try`-`catch` block is used for error handling. The `addend`s are provided as parameters and
 are changed after each iteration.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [Method: call computeSum remotely] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [Method: call computeSum remotely] -->
 ```cpp
 auto methodFuture = proxy.computeSum(addend1, addend2);
 try
@@ -286,7 +286,7 @@ Again, the application runs until `Ctrl-C` is pressed.
 If an asynchronous find service call was set up, the call is stopped with the return value of
 `EnableFindServiceCallback` before termination.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [stop find service] -->
+<!-- [geoffrey] [iox_automotive_proxy.cpp] [stop find service] -->
 ```cpp
 if (maybeHandle.has_value())
 {
@@ -312,7 +312,7 @@ The `Runtime::FindService` call searches for all iceoryx service with the given 
 instance identifier both for publish/subscribe and request/response. The `MessagingPattern`
 is supplied as the fifth parameter. All results get pushed into a shared container.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [searching for iceoryx services] -->
+<!-- [geoffrey] [src/runtime.cpp] [searching for iceoryx services] -->
 ```cpp
 kom::ServiceHandleContainer<kom::ProxyHandleType> iceoryxServiceContainer;
 
@@ -342,7 +342,7 @@ service is considered as available as soon as all members are available. Typical
 writing a binding would query a database with e.g. the AUTOSAR meta model here. If the service is
 complete the result in form of a container is passed to the caller.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [verify iceoryx mapping] -->
+<!-- [geoffrey] [src/runtime.cpp] [verify iceoryx mapping] -->
 ```cpp
 kom::ServiceHandleContainer<kom::ProxyHandleType> autosarServiceContainer;
 if (verifyThatServiceIsComplete(iceoryxServiceContainer))
@@ -362,7 +362,7 @@ registered services has changed.
 When calling `Runtime::EnableFindServiceCallback` for the first time the `ServiceDiscovery` object is
 attached to the `popo::Listener` and will notify on any change of the `ServiceRegistry`.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [attach discovery to listener] -->
+<!-- [geoffrey] [src/runtime.cpp] [attach discovery to listener] -->
 ```cpp
 if (m_callbacks.size() == 1)
 {
@@ -378,7 +378,7 @@ First, it needs to be assessed whether the availability of one of the registered
 For this a `FindService` call is executed and the size of the containers whilst the last and the
 current call are acquired.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [perform FindService] -->
+<!-- [geoffrey] [src/runtime.cpp] [perform FindService] -->
 ```cpp
 for (auto& callback : self->m_callbacks)
 {
@@ -391,7 +391,7 @@ for (auto& callback : self->m_callbacks)
 
 Two cases have to be handled, the special one on the first appearance of the service
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [first execution conditions] -->
+<!-- [geoffrey] [src/runtime.cpp] [first execution conditions] -->
 ```cpp
 if (!numberOfAvailableServicesOnLastSearch.has_value() && numberOfAvailableServicesOnCurrentSearch != 0)
 {
@@ -401,7 +401,7 @@ if (!numberOfAvailableServicesOnLastSearch.has_value() && numberOfAvailableServi
 
 and the one when the service disappears after having been available
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/runtime.cpp] [second execution conditions] -->
+<!-- [geoffrey] [src/runtime.cpp] [second execution conditions] -->
 ```cpp
 if (numberOfAvailableServicesOnLastSearch.has_value()
     && numberOfAvailableServicesOnLastSearch.value() != numberOfAvailableServicesOnCurrentSearch)
@@ -422,7 +422,7 @@ Contains three members which use a different communication pattern:
 
 A `EventPublisher` contains a single member.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher members] -->
+<!-- [geoffrey] [include/owl/kom/event_publisher.hpp] [EventPublisher members] -->
 ```cpp
 iox::popo::Publisher<T> m_publisher;
 ```
@@ -433,7 +433,7 @@ to call `Loan()` before and acquire a piece of memory in the shared memory.
 The ownership to the piece of memory is represented by a `SamplePointer`. It behaves like a
 `std::unique_ptr`.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher loan] -->
+<!-- [geoffrey] [include/owl/kom/event_publisher.hpp] [EventPublisher loan] -->
 ```cpp
 SamplePointer<SampleType> Loan() noexcept;
 ```
@@ -442,7 +442,7 @@ Afterwards data can be written directly to shared memory by dereferencing the `S
 object. It is implemented using `cxx::optional` and `popo::Sample` and, in line with the iceoryx
 philosophy for defined behaviour, terminates if an empty object is dereferenced.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/sample_pointer.inl] [SamplePointer dereferencing] -->
+<!-- [geoffrey] [include/owl/kom/sample_pointer.inl] [SamplePointer dereferencing] -->
 ```cpp
 template <typename SampleType>
 inline SampleType& SamplePointer<SampleType>::operator*() noexcept
@@ -453,7 +453,7 @@ inline SampleType& SamplePointer<SampleType>::operator*() noexcept
 
 Finally, the memory can be send to subscribers by calling
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_publisher.hpp] [EventPublisher zero-copy send] -->
+<!-- [geoffrey] [include/owl/kom/event_publisher.hpp] [EventPublisher zero-copy send] -->
 ```cpp
 void Send(SamplePointer<SampleType> userSamplePtr) noexcept;
 ```
@@ -462,7 +462,7 @@ void Send(SamplePointer<SampleType> userSamplePtr) noexcept;
 
 A `FieldPublisher` contains four members.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.hpp] [FieldPublisher members] -->
+<!-- [geoffrey] [include/owl/kom/field_publisher.hpp] [FieldPublisher members] -->
 ```cpp
 iox::popo::Publisher<FieldType> m_publisher;
 iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
@@ -477,7 +477,7 @@ the field value from the subscriber side. The `Listener` is used to instantly re
 being sent to the `Server`. Additionally, the latest value is stored if the users queries the
 value again.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.hpp] [FieldPublisher members] -->
+<!-- [geoffrey] [include/owl/kom/field_publisher.hpp] [FieldPublisher members] -->
 ```cpp
 iox::popo::Publisher<FieldType> m_publisher;
 iox::popo::Server<iox::cxx::optional<FieldType>, FieldType> m_server;
@@ -490,7 +490,7 @@ std::atomic<T> m_latestValue;
 `Update()` is very similar to `Send()` in the `EventPublisher`. The `Server` needs to be attached
 in the constructor
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.inl] [FieldPublisher attach] -->
+<!-- [geoffrey] [include/owl/kom/field_publisher.inl] [FieldPublisher attach] -->
 ```cpp
 m_listener
     .attachEvent(m_server,
@@ -502,7 +502,7 @@ m_listener
 Once a new request is received the following callback will be called. It receives the request,
 reserves new memory for the response and writes the current value to shared memory.
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_publisher.inl] [FieldPublisher callback] -->
+<!-- [geoffrey] [include/owl/kom/field_publisher.inl] [FieldPublisher callback] -->
 ```cpp
 template <typename T>
 inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
@@ -538,7 +538,7 @@ The `MethodServer` is similar to the request-response part of the `FieldPublishe
 
 It is implemented with two members
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/method_server.hpp] [MethodServer members] -->
+<!-- [geoffrey] [include/owl/kom/method_server.hpp] [MethodServer members] -->
 ```cpp
 iox::popo::Server<AddRequest, AddResponse> m_server;
 iox::popo::Listener m_listener;
@@ -548,7 +548,7 @@ The attachment of the `Server` to the `Listener` and the callback are very simil
 `FieldPublisher`. However, as `MethodServer` task is to add two numbers the response is calculated
 by calling
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/owl/kom/method_server.cpp] [MethodServer calc response] -->
+<!-- [geoffrey] [src/owl/kom/method_server.cpp] [MethodServer calc response] -->
 ```cpp
 .and_then([&](auto& response) {
     response->sum = self->computeSumInternal(request->addend1, request->addend2);
@@ -567,7 +567,7 @@ service with all its three elements:
 
 The `EventSubscriber` class is implemented with the following members
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.hpp] [EventSubscriber members] -->
+<!-- [geoffrey] [include/owl/kom/event_subscriber.hpp] [EventSubscriber members] -->
 ```cpp
 iox::capro::ServiceDescription m_serviceDescription;
 iox::cxx::optional<iox::popo::Subscriber<T>> m_subscriber;
@@ -580,7 +580,7 @@ iox::popo::Listener m_listener;
 Again, a `Listener` is used to instantly react to a new topic sent by a `EventPublisher`.
 This time, the `Listener` executes the callback which was stored with
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.inl] [EventSubscriber setReceiveHandler] -->
+<!-- [geoffrey] [include/owl/kom/event_subscriber.inl] [EventSubscriber setReceiveHandler] -->
 ```cpp
 template <typename T>
 inline void EventSubscriber<T>::SetReceiveCallback(EventReceiveCallback handler) noexcept
@@ -607,7 +607,7 @@ inline void EventSubscriber<T>::SetReceiveCallback(EventReceiveCallback handler)
 
 and once invoked the callback gets executed
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/event_subscriber.inl] [EventSubscriber invoke callback] -->
+<!-- [geoffrey] [include/owl/kom/event_subscriber.inl] [EventSubscriber invoke callback] -->
 ```cpp
 template <typename T>
 inline void EventSubscriber<T>::onSampleReceivedCallback(iox::popo::Subscriber<T>*, EventSubscriber* self) noexcept
@@ -638,7 +638,7 @@ If a receive handler is not needed, `TakeNewSamples()` can be used in a polling 
 
 The `FieldSubscriber` class is implemented with help of the following members
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.hpp] [FieldSubscriber members] -->
+<!-- [geoffrey] [include/owl/kom/field_subscriber.hpp] [FieldSubscriber members] -->
 ```cpp
 iox::popo::Subscriber<FieldType> m_subscriber;
 iox::popo::Client<iox::cxx::optional<FieldType>, FieldType> m_client;
@@ -652,7 +652,7 @@ std::atomic<uint32_t> m_threadsRunning{0};
 The `Get()` method allows the receive the value from a `FieldPublisher`
 object on demand by sending an empty request
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber get] -->
+<!-- [geoffrey] [include/owl/kom/field_subscriber.inl] [FieldSubscriber get] -->
 ```cpp
 bool requestSuccessfullySent{false};
 m_client.loan()
@@ -675,7 +675,7 @@ A sequence number is set to ensure monotonic order.
 
 The `Set()` method is implemented in a similar manner but writes the value to the request
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber set] -->
+<!-- [geoffrey] [include/owl/kom/field_subscriber.inl] [FieldSubscriber set] -->
 ```cpp
 .and_then([&](auto& request) {
     request.getRequestHeader().setSequenceId(m_sequenceId);
@@ -684,7 +684,7 @@ The `Set()` method is implemented in a similar manner but writes the value to th
 
 Both methods call `receiveResponse()` at the very end, which will receive the response `Future` by using the `WaitSet`
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber receive response] -->
+<!-- [geoffrey] [include/owl/kom/field_subscriber.inl] [FieldSubscriber receive response] -->
 ```cpp
 std::lock_guard<iox::posix::mutex> guard(m_onlyOneThreadRunningMutex);
 
@@ -704,7 +704,7 @@ for (auto& notification : notificationVector)
             if (receivedSequenceId == m_sequenceId)
             {
                 FieldType result = *response;
-                m_sequenceId++;
+                ++m_sequenceId;
                 promise.set_value_at_thread_exit(result);
             }
             else
@@ -730,7 +730,7 @@ Alternatively, the value can also be received in a polling manner with `TakeNewS
 
 Every `MethodClient` object contains the following members
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/method_client.hpp] [MethodClient members] -->
+<!-- [geoffrey] [include/owl/kom/method_client.hpp] [MethodClient members] -->
 ```cpp
 iox::popo::Client<AddRequest, AddResponse> m_client;
 std::atomic<int64_t> m_sequenceId{0};
@@ -746,7 +746,7 @@ unlike the `FieldPublisher`, it is not templated but takes a fixed number of arg
 
 The request part of `operator()()` is implemented as follows
 
-<!-- [geoffrey] [iceoryx_examples/automotive_soa/src/owl/kom/method_client.cpp] [MethodClient send request] -->
+<!-- [geoffrey] [src/owl/kom/method_client.cpp] [MethodClient send request] -->
 ```cpp
 Future<AddResponse> MethodClient::operator()(const uint64_t addend1, const uint64_t addend2)
 {

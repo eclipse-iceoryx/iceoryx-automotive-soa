@@ -69,7 +69,7 @@ Future<AddResponse> MethodClient::operator()(const uint64_t addend1, const uint6
     Promise<AddResponse> promise;
     auto future = promise.get_future();
 
-    m_threadsRunning++;
+    ++m_threadsRunning;
     // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
     std::thread(
         [&](Promise<AddResponse>&& promise) {
@@ -105,7 +105,7 @@ Future<AddResponse> MethodClient::operator()(const uint64_t addend1, const uint6
                     }
                 }
             }
-            m_threadsRunning--;
+            --m_threadsRunning;
         },
         std::move(promise))
         .detach();

@@ -150,7 +150,7 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
                         if (receivedSequenceId == m_sequenceId)
                         {
                             FieldType result = *response;
-                            m_sequenceId++;
+                            ++m_sequenceId;
                             promise.set_value_at_thread_exit(result);
                         }
                         else
