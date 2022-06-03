@@ -20,6 +20,14 @@ The example shows three different ways of communication between a skeleton and a
 
 <!-- [![asciicast](https://asciinema.org/a/000000.svg)](https://asciinema.org/a/000000) -->
 
+## Installation
+
+```console
+sudo apt-get install -y libacl1-dev libncurses5-dev bison
+cmake -B build
+cmake --build build
+```
+
 ## Code walkthrough
 
 !!! note
@@ -773,6 +781,8 @@ Future<AddResponse> MethodClient::operator()(const uint64_t addend1, const uint6
 
 The response is received in a similar manner to receiving the response in the `FieldSubscriber`, again, wrapping the result in a `std::future`.
 
+<!--
 <center>
-[Check out automotive_soa on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/automotive_soa){ .md-button } <!--NOLINT github url for website-->
+[Check out automotive_soa on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/automotive_soa){ .md-button }
 </center>
+-->
