@@ -1,0 +1,6 @@
+build
+install
+clangd
+.vscode
+*.project
+__pycache__
