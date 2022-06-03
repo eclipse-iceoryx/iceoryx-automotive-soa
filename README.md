@@ -18,7 +18,7 @@ The example shows three different ways of communication between a skeleton and a
 
 ## Expected Output
 
-<!-- [![asciicast](https://asciinema.org/a/000000.svg)](https://asciinema.org/a/000000) -->
+[![asciicast](https://asciinema.org/a/499297.svg)](https://asciinema.org/a/499297)
 
 ## Installation
 
