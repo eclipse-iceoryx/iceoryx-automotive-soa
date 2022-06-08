@@ -20,6 +20,9 @@ cmake_minimum_required(VERSION 3.16)
 find_package(iceoryx_hoofs QUIET)
 find_package(iceoryx_posh QUIET)
 
+# Link iceoryx_hoofs and iceoryx_posh libraries statically
+set(BUILD_SHARED_LIBS OFF)
+
 # fetch iceoryx if not found
 if(NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND)
     if(iceoryx_hoofs_FOUND)
