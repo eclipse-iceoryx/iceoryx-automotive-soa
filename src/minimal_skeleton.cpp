@@ -32,9 +32,13 @@ MinimalSkeleton::~MinimalSkeleton() noexcept
 void MinimalSkeleton::Offer() noexcept
 {
     m_event.Offer();
+    m_field.Offer();
+    computeSum.Offer();
 }
 
 void MinimalSkeleton::StopOffer() noexcept
 {
     m_event.StopOffer();
+    m_field.StopOffer();
+    computeSum.StopOffer();
 }

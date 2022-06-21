@@ -34,6 +34,7 @@ class FieldPublisher
   public:
     using FieldType = T;
     static constexpr uint64_t HISTORY_CAPACITY{1U};
+    static constexpr bool NOT_OFFERED_ON_CREATE{false};
 
     FieldPublisher(const ServiceIdentifier& service,
                    const InstanceIdentifier& instance,
@@ -45,6 +46,9 @@ class FieldPublisher
     FieldPublisher(FieldPublisher&&) = delete;
     FieldPublisher& operator=(const FieldPublisher&) = delete;
     FieldPublisher& operator=(FieldPublisher&&) = delete;
+
+    void Offer() noexcept;
+    void StopOffer() noexcept;
 
     bool Update(const FieldType& userField) noexcept;
 

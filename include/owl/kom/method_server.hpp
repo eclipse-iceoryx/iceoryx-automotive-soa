@@ -31,6 +31,9 @@ namespace kom
 class MethodServer
 {
   public:
+    static constexpr uint64_t HISTORY_CAPACITY{1U};
+    static constexpr bool NOT_OFFERED_ON_CREATE{false};
+
     MethodServer(const ServiceIdentifier& service,
                  const InstanceIdentifier& instance,
                  const MethodIdentifier& method) noexcept;
@@ -41,6 +44,9 @@ class MethodServer
     MethodServer(MethodServer&&) = delete;
     MethodServer& operator=(const MethodServer&) = delete;
     MethodServer& operator=(MethodServer&&) = delete;
+
+    void Offer() noexcept;
+    void StopOffer() noexcept;
 
     Future<AddResponse> computeSum(const uint64_t addend1, const uint64_t addend2);
 

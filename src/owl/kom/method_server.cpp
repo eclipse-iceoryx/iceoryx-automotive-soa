@@ -23,7 +23,7 @@ namespace kom
 MethodServer::MethodServer(const ServiceIdentifier& service,
                            const InstanceIdentifier& instance,
                            const MethodIdentifier& method) noexcept
-    : m_server({service, instance, method})
+    : m_server({service, instance, method}, {HISTORY_CAPACITY, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
 {
     m_listener
         .attachEvent(m_server,
@@ -35,6 +35,16 @@ MethodServer::MethodServer(const ServiceIdentifier& service,
 MethodServer::~MethodServer() noexcept
 {
     m_listener.detachEvent(m_server, iox::popo::ServerEvent::REQUEST_RECEIVED);
+}
+
+void MethodServer::Offer() noexcept
+{
+    m_server.offer();
+}
+
+void MethodServer::StopOffer() noexcept
+{
+    m_server.stopOffer();
 }
 
 Future<AddResponse> MethodServer::computeSum(const uint64_t addend1, const uint64_t addend2)
