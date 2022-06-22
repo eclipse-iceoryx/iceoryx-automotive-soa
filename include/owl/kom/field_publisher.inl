@@ -28,11 +28,10 @@ inline FieldPublisher<T>::FieldPublisher(const ServiceIdentifier& service,
                                          const InstanceIdentifier& instance,
                                          const FieldIdentifier& field,
                                          const FieldType& fieldValue) noexcept
-    : m_publisher({service, instance, field}, {HISTORY_CAPACITY})
-    , m_server({service, instance, field})
+    : m_publisher({service, instance, field}, {HISTORY_CAPACITY, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
+    , m_server({service, instance, field}, {HISTORY_CAPACITY, iox::NodeName_t(), NOT_OFFERED_ON_CREATE})
     , m_latestValue(fieldValue)
 {
-    // publisher is automatically offered
     Update(m_latestValue);
 
     //! [FieldPublisher attach]
@@ -49,6 +48,20 @@ inline FieldPublisher<T>::~FieldPublisher() noexcept
 {
     m_listener.detachEvent(m_server, iox::popo::ServerEvent::REQUEST_RECEIVED);
     m_publisher.stopOffer();
+}
+
+template <typename T>
+void FieldPublisher<T>::Offer() noexcept
+{
+    m_publisher.offer();
+    m_server.offer();
+}
+
+template <typename T>
+void FieldPublisher<T>::StopOffer() noexcept
+{
+    m_publisher.stopOffer();
+    m_server.stopOffer();
 }
 
 template <typename T>
